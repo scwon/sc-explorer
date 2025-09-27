@@ -1,3 +1,22 @@
+import socket
+
+
+def show(body):
+    in_tag = False
+    for c in body:
+        if c == "<":
+            in_tag = True
+        elif c == ">":
+            in_tag = False
+        elif not in_tag:
+            print(c, end="")
+
+
+def load(url):
+    body = url.request()
+    show(body)
+
+
 class URL:
     def request(self):
         s = socket.socket(
@@ -24,6 +43,7 @@ class URL:
         assert "content-encoding" not in response_headers
         body = response.read()
         s.close()
+        return body
 
     def __init__(self, url):
         self.scheme, url = url.split("://", 1)
@@ -32,3 +52,9 @@ class URL:
             url += "/"
         self.host, url = url.split("/", 1)
         self.path = "/" + url
+
+
+if __name__ == "__main__":
+    import sys
+
+    load(URL(sys.argv[1]))
