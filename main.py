@@ -1,4 +1,5 @@
 import socket
+import ssl
 
 
 def show(body):
@@ -24,7 +25,10 @@ class URL:
             type=socket.SOCK_STREAM,
             proto=socket.IPPROTO_TCP,
         )
-        s.connect((self.host, 80))
+        if self.scheme == "https":
+            ctx = ssl.create_default_context()
+            s = ctx.wrap_socket(s, server_hostname=self.host)
+        s.connect((self.host, self.port))
         request = "GET {} HTTP/1.0\r\n".format(self.path)
         request += "Host: {}\r\n".format(self.host)
         request += "\r\n"
@@ -47,11 +51,15 @@ class URL:
 
     def __init__(self, url):
         self.scheme, url = url.split("://", 1)
-        assert self.scheme == "http"
+        assert self.scheme in ["http", "https"]
         if "/" not in url:
             url += "/"
         self.host, url = url.split("/", 1)
         self.path = "/" + url
+        if self.scheme == "http":
+            self.port = 80
+        elif self.scheme == "https":
+            self.port = 443
 
 
 if __name__ == "__main__":
