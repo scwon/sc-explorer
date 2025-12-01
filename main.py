@@ -60,6 +60,9 @@ class URL:
             self.port = 80
         elif self.scheme == "https":
             self.port = 443
+        if ":" in self.host:
+            self.host, port = self.host.split(":", 1)
+            self.port = int(port)
 
 
 if __name__ == "__main__":
